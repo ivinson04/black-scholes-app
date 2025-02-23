@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black-Scholes Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        label, input, select, button {
+            margin: 10px 0;
+            display: block;
+            width: 100%;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #result {
+            margin-top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+    </style>
+    <script>
+        function calculate() {
+            let data = {
+                S: document.getElementById("S").value,
+                K: document.getElementById("K").value,
+                T: document.getElementById("T").value / 365, // Convert days to years
+                r: document.getElementById("r").value / 100, // Convert percentage to decimal
+                option_price: document.getElementById("option_price").value,
+                option_type: document.getElementById("option_type").value
+            };
+
+            fetch("/calculate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    document.getElementById("result").innerText = result.error;
+                } else {
+                    document.getElementById("result").innerHTML = `
+                        <p><strong>Implied Volatility:</strong> ${result["Implied Volatility"].toFixed(2)}%</p>
+                        <p><strong>Delta:</strong> ${result["Delta"].toFixed(4)}</p>
+                        <p><strong>Gamma:</strong> ${result["Gamma"].toFixed(4)}</p>
+                        <p><strong>Theta (per day):</strong> ${result["Theta"].toFixed(4)}</p>
+                        <p><strong>Vega:</strong> ${result["Vega"].toFixed(4)}</p>
+                        <p><strong>Win Rate:</strong> ${(result["Win Rate"] * 100).toFixed(2)}%</p>
+                        <p><strong>Optimal Risk (Kelly):</strong> ${(result["Optimal Risk (Kelly)"] * 100).toFixed(2)}%</p>
+                    `;
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Black-Scholes Model Calculator</h1>
+    <form onsubmit="event.preventDefault(); calculate();">
+        <label>Stock Price (S): <input type="number" id="S" required></label>
+        <label>Strike Price (K): <input type="number" id="K" required></label>
+        <label>Time to Expiry (T in days): <input type="number" id="T" required></label>
+        <label>Risk-Free Rate (r) (%): <input type="number" step="0.01" id="r" required></label>
+        <label>Option Price: <input type="number" step="0.01" id="option_price" required></label>
+        <label>Option Type: 
+            <select id="option_type">
+                <option value="call">Call</option>
+                <option value="put">Put</option>
+            </select>
+        </label>
+        <button type="submit">Calculate</button>
+    </form>
+    <h2>Results:</h2>
+    <div id="result"></div>
+</body>
+</html>
