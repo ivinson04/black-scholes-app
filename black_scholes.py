@@ -1,7 +1,6 @@
 import math
 from scipy.stats import norm
 
-
 def calculate_black_scholes(S, K, T, r, option_price, option_type):
     """Calculate implied volatility and Greeks using the Black-Scholes model."""
 
@@ -41,10 +40,10 @@ def calculate_black_scholes(S, K, T, r, option_price, option_type):
     theta = (-(S * norm.pdf(d_1) * sigma) / (2 * math.sqrt(T)) - r * K * math.exp(-r * T) * norm.cdf(d_2)) / 365  # Converted to per day
     vega = S * norm.pdf(d_1) * math.sqrt(T)
     win_rate = norm.cdf(d_1)
-    optimal_risk = win_rate * (1 - win_rate) / win_rate  # Approximate Kelly Criterion
+    optimal_risk = (win_rate - (1 - win_rate)) / 1  # Simplified Kelly Criterion
 
     return {
-        "Implied Volatility": sigma,
+        "Implied Volatility": sigma * 100,  # Convert to percentage
         "Delta": delta,
         "Gamma": gamma,
         "Theta": theta,

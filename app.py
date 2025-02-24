@@ -11,6 +11,7 @@ def home():
 def calculate():
     try:
         data = request.get_json()
+        print("Received data:", data)  # Debugging
 
         # Extracting data from the frontend
         S = float(data['S'])
@@ -22,10 +23,12 @@ def calculate():
 
         # Perform Black-Scholes calculation
         results = calculate_black_scholes(S, K, T, r, option_price, option_type)
+        print("Calculation results:", results)  # Debugging
 
         return jsonify(results)
 
     except Exception as e:
+        print("Error:", e)  # Debugging
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':

@@ -57,6 +57,8 @@
                 option_type: document.getElementById("option_type").value
             };
 
+            console.log("Sending data:", data); // Debugging
+
             fetch("/calculate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -64,6 +66,7 @@
             })
             .then(response => response.json())
             .then(result => {
+                console.log("Received result:", result); // Debugging
                 if (result.error) {
                     document.getElementById("result").innerText = result.error;
                 } else {
@@ -78,7 +81,10 @@
                     `;
                 }
             })
-            .catch(error => console.error("Error:", error));
+            .catch(error => {
+                console.error("Error:", error); // Debugging
+                document.getElementById("result").innerText = "An error occurred. Check the console for details.";
+            });
         }
     </script>
 </head>
