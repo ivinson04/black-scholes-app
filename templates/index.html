@@ -54,7 +54,8 @@
                 T: document.getElementById("T").value / 365, // Convert days to years
                 r: document.getElementById("r").value / 100, // Convert percentage to decimal
                 option_price: document.getElementById("option_price").value,
-                option_type: document.getElementById("option_type").value
+                option_type: document.getElementById("option_type").value,
+                days_later: document.getElementById("days_later").value // New input
             };
 
             console.log("Sending data:", data); // Debugging
@@ -70,7 +71,7 @@
                 if (result.error) {
                     document.getElementById("result").innerText = result.error;
                 } else {
-                    document.getElementById("result").innerHTML = `
+                    let resultHtml = `
                         <p><strong>Implied Volatility:</strong> ${result["Implied Volatility"].toFixed(2)}%</p>
                         <p><strong>Delta:</strong> ${result["Delta"].toFixed(4)}</p>
                         <p><strong>Gamma:</strong> ${result["Gamma"].toFixed(4)}</p>
@@ -79,6 +80,13 @@
                         <p><strong>Win Rate:</strong> ${(result["Win Rate"] * 100).toFixed(2)}%</p>
                         <p><strong>Optimal Risk (Kelly):</strong> ${(result["Optimal Risk (Kelly)"] * 100).toFixed(2)}%</p>
                     `;
+                    if (result["Required Stock Price"]) {
+                        resultHtml += `
+                            <p><strong>Required Stock Price (after ${document.getElementById("days_later").value} days):</strong> ${result["Required Stock Price"].toFixed(2)}</p>
+                            <p><strong>Average Daily Move:</strong> ${result["Average Daily Move"].toFixed(2)}</p>
+                        `;
+                    }
+                    document.getElementById("result").innerHTML = resultHtml;
                 }
             })
             .catch(error => {
@@ -102,6 +110,7 @@
                 <option value="put">Put</option>
             </select>
         </label>
+        <label>Stock Price After How Many Days: <input type="number" id="days_later" placeholder="Optional"></label>
         <button type="submit">Calculate</button>
     </form>
     <h2>Results:</h2>

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from black_scholes import calculate_black_scholes  # Import the function
+from black_scholes import calculate_black_scholes, required_stock_price  # Import the new function
 
 app = Flask(__name__)
 
@@ -20,10 +20,18 @@ def calculate():
         r = float(data['r'])
         option_price = float(data['option_price'])
         option_type = data['option_type']
+        days_later = float(data.get('days_later', 0))  # New input, default to 0 if not provided
 
         # Perform Black-Scholes calculation
         results = calculate_black_scholes(S, K, T, r, option_price, option_type)
         print("Calculation results:", results)  # Debugging
+
+        # Calculate required stock price if days_later is provided and valid
+        if days_later > 0 and days_later < T * 365:  # Ensure days_later is reasonable
+            stock_price_results = required_stock_price(
+                S, K, T, r, option_price, results['sigma'], option_type, days_later
+            )
+            results.update(stock_price_results)  # Merge the results
 
         return jsonify(results)
 
@@ -32,4 +40,4 @@ def calculate():
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)  # Keep it running on port 5001
+    app.run(debug=True, port=5001)
